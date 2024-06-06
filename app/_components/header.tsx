@@ -33,6 +33,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import TitlePage from './title-page'
+import { signIn, signOut, useSession } from 'next-auth/react'
 
 function Header() {
   const [isOpenMenu, setIsOpenMenu] = useState(false)
@@ -40,9 +41,21 @@ function Header() {
   const [isOpenDialog, setIsOpenDialog] = useState(false)
   const [isSignOutLoading, setIsSignOutLoading] = useState(false)
 
+  const { data } = useSession()
+
+  const handleSignInClick = () => signIn('google')
+
   const handleSignOutClick = async () => {
     setIsSignOutLoading(true)
+    try {
+      await signOut()
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setIsSignOutLoading(false)
+    }
   }
+
   const handleOpenCartClick = () => {
     setIsOpenCart(true)
   }
@@ -83,28 +96,36 @@ function Header() {
               <SheetTitle>Menu</SheetTitle>
               <div className="flex items-center justify-between pt-9">
                 <SheetTitle className="text-base">
-                  <div className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarImage
-                        src={'https://github.com/felipekgouvea.png'}
-                      />
-                      <AvatarFallback>FKG</AvatarFallback>
-                    </Avatar>
+                  {data?.user ? (
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarImage src={data.user.image ?? ''} />
+                        <AvatarFallback>
+                          {data.user.name?.split(' ')[0][1]}
+                          {data.user.name?.split(' ')[0][0]}
+                        </AvatarFallback>
+                      </Avatar>
 
-                    <div>
-                      <h2 className="text-sm font-bold capitalize">
-                        Felipe Kinupes
-                      </h2>
-                      <span className="block text-xs text-muted-foreground">
-                        felipekgouvea@gmail.com
-                      </span>
+                      <div>
+                        <h2 className="text-sm font-bold capitalize">
+                          {data.user.name}
+                        </h2>
+                        <span className="block text-xs text-muted-foreground">
+                          {data.user.email}
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <span>Olá, Faça o seu login!</span>
+                  )}
                 </SheetTitle>
-
-                <Button size="icon">
-                  <LogInIcon size={20} />
-                </Button>
+                {data?.user ? (
+                  ''
+                ) : (
+                  <Button size="icon" onClick={handleSignInClick}>
+                    <LogInIcon size={20} />
+                  </Button>
+                )}
               </div>
             </SheetHeader>
 
@@ -144,31 +165,37 @@ function Header() {
                   </Button>
                 </SheetClose>
               </Link>
-
-              <Link href="/orders">
-                <SheetClose asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start gap-2"
-                  >
-                    <ListOrderedIcon size={16} />
-                    Meus Pedidos
-                  </Button>
-                </SheetClose>
-              </Link>
+              {data?.user && (
+                <Link href="/orders">
+                  <SheetClose asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start gap-2"
+                    >
+                      <ListOrderedIcon size={16} />
+                      Meus Pedidos
+                    </Button>
+                  </SheetClose>
+                </Link>
+              )}
             </div>
           </div>
 
           <div className="px-2 pb-2">
-            <Button
-              variant="outline"
-              className="w-full px-5"
-              onClick={handleOpenDialogClick}
-              disabled={isSignOutLoading}
-            >
-              <LogOutIcon size={16} className="ml-2" />
-              <span className="block">Sair</span>
-            </Button>
+            {data?.user && (
+              <Button
+                variant="outline"
+                className="w-full px-5"
+                onClick={handleOpenDialogClick}
+                disabled={isSignOutLoading}
+              >
+                {isSignOutLoading && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                <LogOutIcon size={16} className="ml-2" />
+                <span className="block">Sair</span>
+              </Button>
+            )}
           </div>
         </SheetContent>
       </Sheet>
