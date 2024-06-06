@@ -50,9 +50,9 @@ function Header() {
     setIsOpenMenu(true)
   }
 
-  // const handleOpenDialogClick = () => {
-  //   setIsOpenDialog(true)
-  // }
+  const handleOpenDialogClick = () => {
+    setIsOpenDialog(true)
+  }
 
   return (
     <header className="max-h-85px flex min-h-[85px] w-full items-center justify-between border-b border-muted px-5">
@@ -85,7 +85,9 @@ function Header() {
                 <SheetTitle className="text-base">
                   <div className="flex items-center gap-3">
                     <Avatar>
-                      <AvatarImage src={'https://gihub.com/felipekg.png'} />
+                      <AvatarImage
+                        src={'https://github.com/felipekgouvea.png'}
+                      />
                       <AvatarFallback>FKG</AvatarFallback>
                     </Avatar>
 
@@ -158,7 +160,12 @@ function Header() {
           </div>
 
           <div className="px-2 pb-2">
-            <Button variant="outline" className="w-full px-5">
+            <Button
+              variant="outline"
+              className="w-full px-5"
+              onClick={handleOpenDialogClick}
+              disabled={isSignOutLoading}
+            >
               <LogOutIcon size={16} className="ml-2" />
               <span className="block">Sair</span>
             </Button>
